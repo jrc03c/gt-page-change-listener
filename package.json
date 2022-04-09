@@ -1,5 +1,9 @@
 {
-  "dependencies": {
-    "@jrc03c/js-math-tools": "github:jrc03c/js-math-tools"
+  "scripts": {
+    "build": "esbuild src/index.js --bundle --outfile=dist/gt-page-change-listener.js --minify",
+    "watch": "esbuild src/index.js --bundle --outfile=dist/gt-page-change-listener.js --minify --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.34"
   }
 }

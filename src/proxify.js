@@ -1,16 +1,5 @@
-function downloadText(text, filename) {
-  let a = document.createElement("a")
-  a.href = "data:text/plain;charset=utf-8," + encodeURIComponent(text)
-  a.download = filename
-  a.dispatchEvent(new MouseEvent("click"))
-}
-
 function proxify(x) {
   const logs = []
-
-  function downloadLogs() {
-    return downloadText(JSON.stringify(logs, null, 2), "logs.json")
-  }
 
   function helper(x) {
     if (typeof x === "object" || typeof x === "function") {
@@ -67,6 +56,13 @@ function proxify(x) {
     orig: x,
     object: helper(x),
     logs,
-    downloadLogs,
   }
+}
+
+if (typeof module !== "undefined") {
+  module.exports = proxify
+}
+
+if (typeof window !== "undefined") {
+  window.proxify = proxify
 }
