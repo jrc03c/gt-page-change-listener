@@ -1,0 +1,79 @@
+<html>
+  <head>
+    <script src="https://www.guidedtrack.com/assets/jquery_gt.js"></script>
+    <script src="https://www.guidedtrack.com/assets/bootstrap.min.js"></script>
+    <script src="https://www.guidedtrack.com/assets/gt_interpreter.js"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://www.guidedtrack.com/assets/bootstrap.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://www.guidedtrack.com/assets/guidedtrack.css" />
+  </head>
+  <body>
+    <div
+      aria-live="polite"
+      class="guidedtrack program_container"
+      id="icxccag"
+      data-environment="production">
+      <div id="program_navigation">
+        <div id="back-button"></div>
+        <div class="navigation_container"></div>
+        <div id="run-menu"></div>
+        <div class="points">
+          <div class="total"></div>
+          <div class="change"></div>
+        </div>
+      </div>
+      <div class="maintain"></div>
+      <div class="main"></div>
+    </div>
+
+    <script src="node_modules/@jrc03c/js-math-tools/dist/js-math-tools.js"></script>
+    <script src="proxify.js"></script>
+    <script>
+      const { copy, sort, stringify } = JSMathTools
+
+      let interval = setInterval(() => {
+        if (!window.data) return
+        clearInterval(interval)
+
+        const origData = window.data
+        const proxifiedData = proxify(origData)
+
+        Object.defineProperty(window, "data", {
+          configurable: false,
+          enumerable: true,
+          writable: false,
+          value: proxifiedData.object,
+        })
+
+        let lastLogsLength = proxifiedData.logs.length
+        const actualLogs = []
+
+        setInterval(() => {
+          if (proxifiedData.logs.length > lastLogsLength) {
+            const newLogs = proxifiedData.logs.slice(lastLogsLength)
+
+            const update = newLogs.find(
+              v => v.type === "set" && v.prop === "unsynced_documents"
+            )
+
+            if (update && update.value.length > 0) {
+              console.log("update!")
+              actualLogs.push(update)
+            }
+
+            lastLogsLength = proxifiedData.logs.length
+          }
+        }, 10)
+
+        window.downloadLogs = function () {
+          return downloadText(stringify(actualLogs, null, 2), "logs.json")
+        }
+      }, 1)
+    </script>
+  </body>
+</html>
