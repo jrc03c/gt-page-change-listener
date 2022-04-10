@@ -20,10 +20,10 @@ npm install --save https://github.com/jrc03c/gt-page-change-listener
 
 # Use
 
-Include the script in the "dist" folder in your HTML page:
+Include the script from the "dist" folder in your HTML page:
 
 ```html
-<script src="path/to/gt-pange-change-listener/dist/gt-page-change-listener.js"></script>
+<script src="path/to/dist/gt-page-change-listener.js"></script>
 ```
 
 And add a callback just like you would when using `*trigger` from within a GT program (see [the relevant docs page](https://docs.guidedtrack.com/manual/advanced-options/triggering-a-javascript-event/#triggering-a-javascript-event)):
