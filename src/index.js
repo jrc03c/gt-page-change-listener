@@ -1,10 +1,11 @@
 const proxify = require("./proxify.js")
-let proxy = null
+const waitFor = require("./wait-for.js")
 
-let interval = setInterval(() => {
-  if (!window.data) return
-  clearInterval(interval)
+async function setUpListener() {
+  await waitFor(() => !!$)
+  await waitFor(() => !!window.data)
 
+  let proxy = null
   const origData = window.data
   proxy = proxify(origData)
 
@@ -14,90 +15,32 @@ let interval = setInterval(() => {
     writable: false,
     value: proxy.object,
   })
-}, 1)
 
-class GTPageChangeListener {
-  static callbacks = []
-  static isListening = false
+  let lastLogsLength = 0
 
-  static addCallback(fn) {
-    if (typeof fn !== "function") {
-      throw new Error("You must pass a function into the `addCallback` method!")
+  let interval = setInterval(() => {
+    if (proxy.logs.length > lastLogsLength) {
+      const newLogs = proxy.logs.slice(lastLogsLength)
+
+      newLogs.forEach(item => {
+        if (
+          item.type === "set" &&
+          item.prop === "unsynced_documents" &&
+          item.value &&
+          item.value.length > 0
+        ) {
+          $(window).trigger("gt-page-change")
+        }
+      })
     }
 
-    GTPageChangeListener.callbacks.push(fn)
+    proxy.logs.splice(0, proxy.logs.length)
+    lastLogsLength = 0
+  }, 100)
 
-    if (!GTPageChangeListener.isListening) {
-      GTPageChangeListener.start()
-    }
-
-    return GTPageChangeListener
-  }
-
-  static removeCallback(fn) {
-    if (typeof fn !== "function") {
-      throw new Error(
-        "You must pass a function into the `removeCallback` method!"
-      )
-    }
-
-    GTPageChangeListener.callbacks.splice(
-      GTPageChangeListener.callbacks.indexOf(fn),
-      1
-    )
-
-    if (GTPageChangeListener.callbacks.length === 0) {
-      GTPageChangeListener.stop()
-    }
-
-    return GTPageChangeListener
-  }
-
-  static start() {
-    if (GTPageChangeListener.isListening) return
-    GTPageChangeListener.isListening = true
-    let lastLogsLength = 0
-
-    let interval = setInterval(() => {
-      if (!GTPageChangeListener.isListening) {
-        clearInterval(interval)
-        return
-      }
-
-      if (!proxy) return
-
-      if (proxy.logs.length > lastLogsLength) {
-        const newLogs = proxy.logs.slice(lastLogsLength)
-
-        newLogs.forEach(item => {
-          if (
-            item.type === "set" &&
-            item.prop === "unsynced_documents" &&
-            item.value &&
-            item.value.length > 0
-          ) {
-            GTPageChangeListener.callbacks.forEach(fn => fn())
-          }
-        })
-      }
-
-      proxy.logs.splice(0, proxy.logs.length)
-      lastLogsLength = 0
-    }, 100)
-
-    return GTPageChangeListener
-  }
-
-  static stop() {
-    GTPageChangeListener.isListening = false
-    return GTPageChangeListener
-  }
+  $(window).on("stop-gt-page-change-listener", () => {
+    clearInterval(interval)
+  })
 }
 
-if (typeof module !== "undefined") {
-  module.exports = GTPageChangeListener
-}
-
-if (typeof window !== "undefined") {
-  window.GTPageChangeListener = GTPageChangeListener
-}
+setUpListener()

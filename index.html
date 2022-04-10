@@ -33,9 +33,12 @@
 
     <script src="dist/gt-page-change-listener.js"></script>
     <script>
-      GTPageChangeListener.addCallback(() => {
-        console.log("Page changed!", new Date().toLocaleString())
+      $(window).on("gt-page-change", () => {
+        console.log("The page was changed!", new Date().toLocaleString())
       })
+
+      // To stop the listener, use:
+      // $(window).trigger("stop-gt-page-change-listener")
     </script>
   </body>
 </html>
