@@ -1,3 +1,7 @@
+# Intro
+
+`gt-page-change-listener` is a tool for listening for "page" changes in GT programs.
+
 # Install
 
 **Option #1:** Clone the repo:
