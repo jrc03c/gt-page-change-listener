@@ -1,6 +1,6 @@
 # Intro
 
-`gt-page-change-listener` is a tool for listening for "page" changes in GT programs.
+`gt-page-change-listener` is a tool for listening for "page" changes in [GuidedTrack](https://www.guidedtrack.com) programs.
 
 # Install
 
