@@ -62,4 +62,8 @@ $(window).on("stop-gt-page-change-listener", () => {
   isListening = false
 })
 
+$(window).on("guidedtrack:done", () => {
+  isListening = false
+})
+
 setUpListener()
